@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "193603692215",
+    "project_id": "trippo-e45c4",
+    "storage_bucket": "trippo-e45c4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:193603692215:android:b5f16b31128332c1c00f32",
+        "android_client_info": {
+          "package_name": "com.egoncastle.users"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAd9Gyj1_YWY2j28EyKfi5om3PspyAcW5M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
