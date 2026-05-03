@@ -5,7 +5,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:users/screens/forget_password_screen.dart';
 
 import '../global/global.dart';
-import 'main_page.dart';
+import 'main_screen.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -232,7 +233,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                 SizedBox(width: 5,),
                                 GestureDetector(
                                   onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => RegisterScreen(),
+                                      ),
+                                    );
                                   },
+
                                   child: Text(
                                     "Register",
                                     style: TextStyle(

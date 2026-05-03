@@ -5,7 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:users/global/global.dart';
-import 'package:users/screens/main_page.dart';
+import 'package:users/screens/main_screen.dart';
+import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -70,7 +71,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
-      body: ListView(
+        body: SafeArea(
+      child: ListView(
         padding: EdgeInsets.all(0),
         children: [
           Image.asset(darkTheme ? "images/city_dark.png": "images/city.png"),
@@ -373,17 +375,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
               ),
-              SizedBox(height: 20,),
-
-              GestureDetector(
-                onTap: () {},
-                child: Text(
-                  "Forget Password?",
-                  style: TextStyle(
-                    color: darkTheme ? Colors.amber.shade400: Colors.blue,
-                  ),
-                )
-              ),
 
               SizedBox(height: 15,),
               Row(
@@ -400,6 +391,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   SizedBox(width: 5,),
                   GestureDetector(
                     onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LoginScreen(),
+                        ),
+                      );
                     },
                     child: Text(
                       "Sign In",
@@ -420,6 +417,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       )
       )
         ],
+      ),
       ),
       ),
     );
