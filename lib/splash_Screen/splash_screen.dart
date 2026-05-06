@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:users/Assistants/assistant_methods.dart';
 import 'package:users/global/global.dart';
 import 'package:users/screens/login_screen.dart';
-import 'package:users/screens/main_screen.dart';
+import 'package:users/screens/role_selection_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -20,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
         firebaseAuth.currentUser != null ? AssistantMethods
             .readCurrentOnLineUserInfo() : null;
         Navigator.push(
-            context, MaterialPageRoute(builder: (c) => MainScreen()));
+            context, MaterialPageRoute(builder: (c) => RoleSelectionScreen()));
       }
       else{
         Navigator.push(context, MaterialPageRoute(builder: (c) => LoginScreen()));

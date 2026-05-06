@@ -5,7 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:users/screens/forget_password_screen.dart';
 
 import '../global/global.dart';
-import 'main_screen.dart';
+import 'role_selection_screen.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -37,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
         await Fluttertoast.showToast(msg: "Successfully Logged In");
         Navigator.push(
-            context, MaterialPageRoute(builder: (c) => MainScreen()));
+            context, MaterialPageRoute(builder: (c) => RoleSelectionScreen()));
       }).catchError((errorMessage) {
         Fluttertoast.showToast(msg: "Error occured : \n $errorMessage");
       });

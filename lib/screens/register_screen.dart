@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:users/global/global.dart';
-import 'package:users/screens/main_screen.dart';
+import 'package:users/screens/role_selection_screen.dart';
 import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -51,7 +51,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         }
         await Fluttertoast.showToast(msg: "Successfully Registered");
         Navigator.push(
-            context, MaterialPageRoute(builder: (c) => MainScreen()));
+            context, MaterialPageRoute(builder: (c) => RoleSelectionScreen()));
       }).catchError((errorMessage) {
         Fluttertoast.showToast(msg: "Error occured : \n $errorMessage");
       });
