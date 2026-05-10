@@ -21,7 +21,8 @@ import 'package:users/screens/rate_driver_screen.dart';
 import 'package:users/widgets/info_design_ui.dart';
 import 'package:users/widgets/pay_fare_amount_dialog.dart';
 import 'package:users/widgets/progress_dialog.dart';
-
+import 'package:users/screens/chat_screen.dart';
+import 'package:users/Assistants/local_notification_service.dart';
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
   @override
@@ -37,7 +38,7 @@ class _MainScreenState extends State<MainScreen> {
   GoogleMapController? newGoogleMapController;
 
   static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(33.6844, 73.0479),
+    target: LatLng(32.5742, 73.7765), // Gujrat, Punjab, Pakistan
     zoom: 14.4746,
   );
 
@@ -64,6 +65,7 @@ class _MainScreenState extends State<MainScreen> {
   DatabaseReference? referenceRideRequest;
   String driverRideStatus = "Driver is Coming";
   StreamSubscription<DatabaseEvent>? tripRideRequestInfoStreamSubscription;
+  StreamSubscription<DatabaseEvent>? chatSubscription;
 
   String userRideRequestStatus = "";
   bool requestPositionInfo = true;
@@ -75,9 +77,34 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  // Default location: Gujrat, Punjab, Pakistan
+  static const double _gujratLat = 32.5742;
+  static const double _gujratLng = 73.7765;
+
   locateUserPosition() async {
     Position cPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    userCurrentPosition = cPosition;
+
+    // If emulator returns default US location (Google HQ area), override with Gujrat, Pakistan
+    if (cPosition.latitude > 30.0 && cPosition.latitude < 35.0 &&
+        cPosition.longitude > 70.0 && cPosition.longitude < 77.0) {
+      // Already in Pakistan region, use real location
+      userCurrentPosition = cPosition;
+    } else {
+      // Emulator default (likely US) — fallback to Gujrat, Pakistan
+      userCurrentPosition = Position(
+        latitude: _gujratLat,
+        longitude: _gujratLng,
+        timestamp: DateTime.now(),
+        accuracy: 0,
+        altitude: 0,
+        altitudeAccuracy: 0,
+        heading: 0,
+        headingAccuracy: 0,
+        speed: 0,
+        speedAccuracy: 0,
+      );
+    }
+
     LatLng latLngPosition = LatLng(userCurrentPosition!.latitude, userCurrentPosition!.longitude);
     CameraPosition cameraPosition = CameraPosition(target: latLngPosition, zoom: 15);
     newGoogleMapController!.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
@@ -171,7 +198,7 @@ class _MainScreenState extends State<MainScreen> {
               },
               onCameraMove: (CameraPosition? position) {
                 if (pickLocation != position!.target) {
-                  setState(() { pickLocation = position.target; });
+                  pickLocation = position.target;
                 }
               },
               onCameraIdle: () { /* address update handled by precise pickup */ },
@@ -382,9 +409,17 @@ class _MainScreenState extends State<MainScreen> {
                             Text(driverCarDetails.isNotEmpty ? driverCarDetails : "Car Details", style: TextStyle(fontSize: 13, color: darkTheme ? Colors.grey.shade400 : Colors.grey)),
                           ]),
                         ),
-                        IconButton(
-                          onPressed: () {},
-                          icon: Icon(Icons.phone, color: darkTheme ? Colors.amber.shade400 : Colors.blue, size: 28),
+                        Row(
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                if (referenceRideRequest?.key != null) {
+                                  Navigator.push(context, MaterialPageRoute(builder: (c) => ChatScreen(rideRequestId: referenceRideRequest!.key!)));
+                                }
+                              },
+                              icon: Icon(Icons.chat, color: darkTheme ? Colors.amber.shade400 : Colors.blue, size: 28),
+                            ),
+                          ],
                         ),
                       ]),
                     ],
@@ -524,7 +559,8 @@ class _MainScreenState extends State<MainScreen> {
                 Navigator.push(context, MaterialPageRoute(builder: (c) => RateDriverScreen(assignedDriverId: data["driverId"])));
               }
               referenceRideRequest!.onDisconnect();
-              tripRideRequestInfoStreamSubscription!.cancel();
+              tripRideRequestInfoStreamSubscription?.cancel();
+              chatSubscription?.cancel();
               setState(() {
                 searchLocationContainerHeight = 220;
                 waitingResponseFromDriverContainerHeight = 0;
@@ -543,6 +579,26 @@ class _MainScreenState extends State<MainScreen> {
       }
     });
 
+    chatSubscription = referenceRideRequest!.child("chat").onChildAdded.listen((event) {
+      if (isChatScreenOpen) return;
+      var data = event.snapshot.value as Map?;
+      if (data == null) return;
+      
+      String senderId = data["senderId"]?.toString() ?? "";
+      String text = data["text"]?.toString() ?? "";
+      
+      // Avoid showing notification for our own messages
+      if (senderId != firebaseAuth.currentUser?.uid && senderId.isNotEmpty) {
+        // Prevent showing notifications for old messages during initial load
+        int currentMillis = DateTime.now().millisecondsSinceEpoch;
+        if (data["timestamp"] != null) {
+          int msgTime = data["timestamp"] is int ? data["timestamp"] : 0;
+          if (msgTime > 0 && (currentMillis - msgTime > 5000)) return;
+        }
+        LocalNotificationService.displayNotification("Driver", text);
+      }
+    });
+
     setState(() {
       searchLocationContainerHeight = 0;
       waitingResponseFromDriverContainerHeight = 200;
@@ -553,6 +609,7 @@ class _MainScreenState extends State<MainScreen> {
   void cancelRideRequest() {
     referenceRideRequest?.remove();
     tripRideRequestInfoStreamSubscription?.cancel();
+    chatSubscription?.cancel();
     setState(() { userRideRequestStatus = ""; });
   }
 

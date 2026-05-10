@@ -10,10 +10,12 @@ import 'package:users/screens/search_places_screen.dart';
 import 'package:users/screens/trips_history_screen.dart';
 import 'package:users/splash_Screen/splash_screen.dart';
 import 'package:users/theme_Provider/theme_provider.dart';
+import 'package:users/Assistants/local_notification_service.dart';
 
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  LocalNotificationService.initialize();
   runApp(const MyApp());
 }
 
