@@ -5,8 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:users/global/global.dart';
-import 'package:users/screens/role_selection_screen.dart';
+import 'package:users/screens/pending_approval_screen.dart';
 import 'login_screen.dart';
+
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -43,15 +44,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
             "email": emailTextEditingController.text.trim(),
             "address": addressTextEditingController.text.trim(),
             "phone": phoneTextEditingController.text.trim(),
+            "status": "pending",
+            "registeredAt": DateTime.now().toString(),
           };
 
           DatabaseReference userRef = FirebaseDatabase.instance.ref().child(
               "users");
           userRef.child(currentUser!.uid).set(userMap);
         }
-        await Fluttertoast.showToast(msg: "Successfully Registered");
-        Navigator.push(
-            context, MaterialPageRoute(builder: (c) => RoleSelectionScreen()));
+        await Fluttertoast.showToast(msg: "Registration submitted! Waiting for admin approval.");
+        Navigator.pushAndRemoveUntil(
+            context, MaterialPageRoute(builder: (c) => const PendingApprovalScreen()), (route) => false);
       }).catchError((errorMessage) {
         Fluttertoast.showToast(msg: "Error occured : \n $errorMessage");
       });
@@ -72,7 +75,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       },
       child: Scaffold(
         body: SafeArea(
-      child: ListView(
+        child: ListView(
         padding: EdgeInsets.all(0),
         children: [
           Image.asset(darkTheme ? "images/city_dark.png": "images/city.png"),

@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:users/Assistants/assistant_methods.dart';
 import 'package:users/global/global.dart';
 import 'package:users/screens/login_screen.dart';
+import 'package:users/screens/pending_approval_screen.dart';
 import 'package:users/screens/role_selection_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -18,14 +20,45 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   startTimer(){
     Timer(const Duration(seconds: 4), () async {
-      if(await firebaseAuth.currentUser !=null) {
-        firebaseAuth.currentUser != null ? AssistantMethods
-            .readCurrentOnLineUserInfo() : null;
-        Navigator.push(
-            context, MaterialPageRoute(builder: (c) => const RoleSelectionScreen()));
+      if(firebaseAuth.currentUser != null) {
+        AssistantMethods.readCurrentOnLineUserInfo();
+
+        // Check user approval status
+        DatabaseReference userRef = FirebaseDatabase.instance
+            .ref()
+            .child("users")
+            .child(firebaseAuth.currentUser!.uid);
+        DatabaseEvent event = await userRef.once();
+
+        if (!mounted) return;
+
+        if (event.snapshot.value != null) {
+          Map userData = event.snapshot.value as Map;
+          String status = userData["status"]?.toString() ?? "approved";
+
+          if (status == "approved") {
+            Navigator.pushAndRemoveUntil(
+                context, MaterialPageRoute(builder: (c) => const RoleSelectionScreen()), (route) => false);
+          } else if (status == "pending") {
+            Navigator.pushAndRemoveUntil(
+                context, MaterialPageRoute(builder: (c) => const PendingApprovalScreen()), (route) => false);
+          } else {
+            // rejected or unknown
+            firebaseAuth.signOut();
+            Navigator.pushAndRemoveUntil(
+                context, MaterialPageRoute(builder: (c) => const LoginScreen()), (route) => false);
+          }
+        } else {
+          // Legacy user without status field
+          Navigator.pushAndRemoveUntil(
+              context, MaterialPageRoute(builder: (c) => const RoleSelectionScreen()), (route) => false);
+        }
       }
       else{
-        Navigator.push(context, MaterialPageRoute(builder: (c) => const LoginScreen()));
+        if (mounted) {
+          Navigator.pushAndRemoveUntil(
+              context, MaterialPageRoute(builder: (c) => const LoginScreen()), (route) => false);
+        }
       }
     });
   }
@@ -85,7 +118,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   style: TextStyle(
                     fontSize: 16,
                     letterSpacing: 1.2,
-                    color: Colors.black54,
+                    color: Colors.grey,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -94,6 +127,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
           ),
         ),
       ),
-    ) ;
+    );
   }
 }
