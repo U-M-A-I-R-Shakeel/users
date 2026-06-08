@@ -7,12 +7,14 @@ import 'package:location/location.dart' as loc;
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+// =========================================================================
+// Main Screen for Passengers in Trippo
+// Handles picking locations, requesting rides, drawing maps, and tracking drivers
+// =========================================================================
 import 'package:users/Assistants/assistant_methods.dart';
 import 'package:users/Assistants/geofire_assistant.dart';
 import 'package:users/global/global.dart';
 import 'package:users/models/active_nearby_available_drivers.dart';
-import 'package:users/models/direction_details_info.dart';
-import 'package:users/models/directions.dart';
 import 'package:users/screens/precise_pickup_location.dart';
 import 'package:users/screens/profile_screen.dart';
 import 'package:users/screens/search_places_screen.dart';

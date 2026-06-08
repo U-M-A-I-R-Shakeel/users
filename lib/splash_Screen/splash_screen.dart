@@ -1,3 +1,8 @@
+// =========================================================================
+// Splash Screen
+// Handshakes with Firebase, validates login state, checks authorization
+// and routes the user appropriately (Login, Role Selection, or Pending)
+// =========================================================================
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';

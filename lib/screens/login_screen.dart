@@ -5,7 +5,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:users/screens/forget_password_screen.dart';
 import 'package:users/screens/pending_approval_screen.dart';
-
 import '../global/global.dart';
 import 'role_selection_screen.dart';
 import 'register_screen.dart';

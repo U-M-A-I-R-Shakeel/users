@@ -77,14 +77,9 @@ class AssistantMethods {
 
   static double calculateFareAmountFromOriginToDestination(
       Directions directionDetailsInfo) {
-    // per km = 25 PKR, per minute = 10 PKR, base fare = 50 PKR
-    double timeTraveledFareAmountPerMinute =
-        (directionDetailsInfo.durationValue! / 60) * 10;
-    double distanceTraveledFareAmountPerKilometer =
-        (directionDetailsInfo.distanceValue! / 1000) * 25;
-    double totalFareAmount = timeTraveledFareAmountPerMinute +
-        distanceTraveledFareAmountPerKilometer +
-        50; // base fare
+    // Fare calculation: Total kilometers * 10 PKR
+    double distanceInKilometers = (directionDetailsInfo.distanceValue! / 1000.0);
+    double totalFareAmount = distanceInKilometers * 10.0;
 
     return double.parse(totalFareAmount.toStringAsFixed(1));
   }
