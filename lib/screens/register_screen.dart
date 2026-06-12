@@ -18,6 +18,7 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final nameTextEditingController = TextEditingController();
+  final regNoTextEditingController = TextEditingController();
   final emailTextEditingController = TextEditingController();
   final phoneTextEditingController = TextEditingController();
   final addressTextEditingController = TextEditingController();
@@ -41,6 +42,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           Map userMap = {
             "id": currentUser!.uid,
             "name": nameTextEditingController.text.trim(),
+            "regNo": regNoTextEditingController.text.trim().toLowerCase(),
             "email": emailTextEditingController.text.trim(),
             "address": addressTextEditingController.text.trim(),
             "phone": phoneTextEditingController.text.trim(),
@@ -137,9 +139,52 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   if(text.length > 49){
                     return "Name cannot be more than 50";
                   }
+                  return null;
                },
                 onChanged: (text) => setState(() {
                   nameTextEditingController.text =text;
+                }),
+              ),
+
+              SizedBox(height: 15),
+
+              TextFormField(
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(13)
+                ],
+                decoration: InputDecoration(
+                  hintText: "Registration No (e.g. G3F22UBSCS015)",
+                  hintStyle: TextStyle(
+                    color: Colors.grey,
+                  ),
+                  filled: true,
+                  fillColor: darkTheme ? Colors.black45 : Colors.grey.shade300,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(40),
+                    borderSide: BorderSide(
+                      width: 0,
+                      style: BorderStyle.none,
+                    )
+                  ),
+                  prefixIcon: Icon(Icons.badge_outlined, color: darkTheme ? Colors.amber.shade400 : Colors.grey),
+                ),
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                textCapitalization: TextCapitalization.characters,
+                validator: (text) {
+                  if (text == null || text.isEmpty) {
+                    return "Registration No cannot be empty";
+                  }
+                  String regNo = text.trim().toLowerCase();
+                  if (!regNo.startsWith("g3")) {
+                    return "Must start with G3";
+                  }
+                  if (regNo.length < 12 || regNo.length > 13) {
+                    return "Must be 12 or 13 characters long";
+                  }
+                  return null;
+                },
+                onChanged: (text) => setState(() {
+                  regNoTextEditingController.text = text;
                 }),
               ),
 
@@ -179,6 +224,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   if(text.length > 99){
                     return "Email cannot be more than 100";
                   }
+                  return null;
                 },
                 onChanged: (text) => setState(() {
                   emailTextEditingController.text =text;
@@ -245,6 +291,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   if(text.length > 99){
                     return "Address cannot be more than 100";
                   }
+                  return null;
                 },
                 onChanged: (text) => setState(() {
                   addressTextEditingController.text =text;

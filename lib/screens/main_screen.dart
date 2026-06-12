@@ -17,6 +17,7 @@ import 'package:users/global/global.dart';
 import 'package:users/models/active_nearby_available_drivers.dart';
 import 'package:users/screens/precise_pickup_location.dart';
 import 'package:users/screens/profile_screen.dart';
+import 'package:users/screens/search_pickup_screen.dart';
 import 'package:users/screens/search_places_screen.dart';
 import 'package:users/screens/trips_history_screen.dart';
 import 'package:users/screens/rate_driver_screen.dart';
@@ -176,9 +177,19 @@ class _MainScreenState extends State<MainScreen> {
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        key: _scaffoldState,
-        drawer: _buildDrawer(darkTheme),
+      child: PopScope(
+        canPop: true,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) {
+            // Auto-cancel any active/waiting ride request when leaving the screen
+            if (referenceRideRequest != null) {
+              cancelRideRequest();
+            }
+          }
+        },
+        child: Scaffold(
+          key: _scaffoldState,
+          drawer: _buildDrawer(darkTheme),
         body: Stack(
           children: [
             // Google Map
@@ -275,17 +286,67 @@ class _MainScreenState extends State<MainScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
                     child: Column(
                       children: [
-                        // Current location
-                        Row(children: [
-                          Icon(Icons.circle, color: Colors.green, size: 14),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                              Text("From", style: TextStyle(color: darkTheme ? Colors.grey.shade400 : Colors.grey, fontSize: 12)),
-                              Text(_address ?? "Getting your location...", maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: darkTheme ? Colors.white : Colors.black87, fontSize: 14, fontWeight: FontWeight.w500)),
-                            ]),
-                          ),
-                        ]),
+                        // Current location (tappable — user can type manually)
+                        GestureDetector(
+                          onTap: () async {
+                            var result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (c) => const SearchPickupScreen(),
+                              ),
+                            );
+                            if (result == "obtainedPickUp") {
+                              setState(() {
+                                _address = userPickUpLocation?.locationName;
+                              });
+                            }
+                          },
+                          child: Row(children: [
+                            Icon(Icons.circle, color: Colors.green, size: 14),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: darkTheme ? Colors.grey.shade800 : Colors.grey.shade100,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: darkTheme ? Colors.grey.shade700 : Colors.grey.shade300,
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text("From", style: TextStyle(color: darkTheme ? Colors.grey.shade400 : Colors.grey, fontSize: 11)),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            _address ?? "Getting your location...",
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              color: darkTheme ? Colors.white : Colors.black87,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.edit_location_alt_outlined,
+                                      size: 18,
+                                      color: darkTheme ? Colors.amber.shade400 : Colors.blue,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ]),
+                        ),
                         const SizedBox(height: 14),
                         Divider(height: 1, color: darkTheme ? Colors.grey.shade700 : Colors.grey.shade300),
                         const SizedBox(height: 14),
@@ -431,6 +492,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }
